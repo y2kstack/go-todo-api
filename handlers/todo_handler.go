@@ -30,6 +30,8 @@ func SingleTodoHandler(w http.ResponseWriter, r *http.Request) {
 		getTodo(w, r)
 	case http.MethodPut:
 		UpdateTodo(w, r)
+	case http.MethodDelete:
+		deleteTodo(w, r)
 	default:
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 	}
@@ -183,5 +185,37 @@ func getTodo(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(todo)
+
+}
+
+func deleteTodo(w http.ResponseWriter, r *http.Request) {
+	// get variables from the url
+	// mux.vars returns a map of the route variables from the request URL
+	vars := mux.Vars(r)
+	idStr, ok := vars["id"]
+	if !ok {
+		http.Error(w, "Id not found in the URL", http.StatusBadRequest)
+		return
+	}
+	// ceonvert the id from the string to integer
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		http.Error(w, "invalid Id Format", http.StatusBadRequest)
+		return
+	}
+	// call the database function to delete the todo
+	err = db.DeleteTodo(id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "Todo Not Found", http.StatusNotFound)
+			return
+		}
+		log.Printf("Error deleting todo from database: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+
+	}
+	// 204 no content is the standard response for successful delete operation
+	w.WriteHeader(http.StatusNoContent)
 
 }

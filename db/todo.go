@@ -125,3 +125,20 @@ func UpdateTodo(id int64, todo models.Todo) (models.Todo, error) {
 	return GetTodoById(id)
 
 }
+
+func DeleteTodo(id int64) error {
+	deleteSQL := "DELETE FROM todos WHERE id = ?"
+	result, err := DB.Exec(deleteSQL, id)
+
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
+}

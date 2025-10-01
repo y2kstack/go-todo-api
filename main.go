@@ -21,7 +21,7 @@ func main() {
 	// HANDLES COLLECTION FOR ENDPOINT FOR GET ALL POST
 	r.HandleFunc("/todos", handlers.TodoHandler).Methods("GET", "POST")
 
-	r.HandleFunc("/todos/{id:[0-9]+}", handlers.SingleTodoHandler).Methods("GET", "PUT")
+	r.HandleFunc("/todos/{id:[0-9]+}", handlers.SingleTodoHandler).Methods("GET", "PUT", "DELETE")
 
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Welcome to the Go Todo API!!")
